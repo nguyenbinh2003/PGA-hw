@@ -1,14 +1,17 @@
 import { Formik, Form, Field } from "formik";
 import * as Yub from "yup";
-import { loginUser } from "../../../../services/user/login";
-import { useNavigate } from "react-router-dom";
+import LoginService from "../../../../services/auth/loginServices";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useState } from "react";
-import Button from "../../../../components/button/Button";
 import { FaStarOfLife } from "react-icons/fa6";
+import { Button } from "react-bootstrap";
+import { ILogin } from "../../../../interfaces/auth-interface";
+
+const UserServices = new LoginService();
 
 const LoginForm = () => {
-  const FormSchema = Yub.object().shape({
+  const loginSchema = Yub.object().shape({
     email: Yub.string().email("Invalid email"),
     password: Yub.string().min(6, "Password must be 6 characters long"),
     // .matches(/[0-9]/, "Password requires a number")
@@ -26,36 +29,42 @@ const LoginForm = () => {
         toggle: false,
         checked: [],
       }}
-      validationSchema={FormSchema}
-      onSubmit={async (values) => {
+      validationSchema={loginSchema}
+      onSubmit={async (values: ILogin) => {
+        console.log("🚀 ~ onSubmit={ ~ values:", values);
         setIsLogin(true);
-        const data = await loginUser(values);
-        setIsLogin(false);
+        if (values.email && values.password) {
+          const user = await UserServices.login({
+            email: values.email,
+            password: values.password,
+          });
+          setIsLogin(false);
 
-        if (data.user !== false) {
-          values.toggle
-            ? localStorage.setItem("user_cookie", data.user_cookie)
-            : localStorage.clear();
-          Swal.fire({
-            title: "Great !",
-            text: "Login successfully",
-            icon: "success",
-          });
-          navigate("/");
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Your email or password is wrong. Try again!",
-          });
-          // navigate("/error");
+          if (user.status < 500) {
+            values.toggle
+              ? localStorage.setItem("user_cookie", user.data.user_cookie)
+              : localStorage.clear();
+            Swal.fire({
+              title: "Great !",
+              text: "Login successfully",
+              icon: "success",
+            });
+            navigate("/");
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Your email or password is wrong. Try again!",
+            });
+          }
         }
+        setIsLogin(false);
       }}
     >
       {({ errors, touched }) => (
         <Form
           style={{ maxWidth: "560px", width: "100%" }}
-          className="row g-3 mt-5 border rounded p-3"
+          className="row g-3 border rounded p-3"
         >
           <div className="d-flex justify-content-center p-2">
             <img
@@ -139,16 +148,16 @@ const LoginForm = () => {
             className="row justify-content-md-center"
             style={{ margin: "16px 0" }}
           >
-            <div className="col-auto">
+            <div className="d-flex col-12 justify-content-center pb-3">
               <Button
-                className="btn btn-primary"
+                variant="primary"
                 type={
                   isLogin || errors.email || errors.password
                     ? "button"
                     : "submit"
                 }
                 style={{
-                  minWidth: "160px",
+                  minWidth: "12rem",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -157,8 +166,18 @@ const LoginForm = () => {
                       ? "no-drop"
                       : "pointer",
                 }}
-                content="Login"
-              />
+              >
+                Login
+              </Button>
+            </div>
+            <div className="d-flex col-12 justify-content-center">
+              <Link
+                to="/sign-up"
+                className="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                style={{ textDecoration: "underline" }}
+              >
+                Or Sign Up Using
+              </Link>
             </div>
           </div>
         </Form>
