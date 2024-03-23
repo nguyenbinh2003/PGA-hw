@@ -1,49 +1,38 @@
 import { Formik, Form, Field } from "formik";
-import * as Yub from "yup";
-import LoginService from "../../../../services/auth/loginServices";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useState } from "react";
 import { FaStarOfLife } from "react-icons/fa6";
 import { Button } from "react-bootstrap";
-import { ILogin } from "../../../../interfaces/auth-interface";
+
+import LoginService from "@/src/services/auth/loginServices";
+import { ILogin } from "@/src/interfaces/auth-interface";
+import { loginSchema } from "@/src/utils/formSchema";
 
 const UserServices = new LoginService();
 
 const LoginForm = () => {
-  const loginSchema = Yub.object().shape({
-    email: Yub.string().email("Invalid email"),
-    password: Yub.string().min(6, "Password must be 6 characters long"),
-    // .matches(/[0-9]/, "Password requires a number")
-    // .matches(/[a-z]/, "Password requires a lowercase letter")
-    // .matches(/[A-Z]/, "Password requires an uppercase letter")
-    // .matches(/[^\w]/, "Password requires a symbol"),
-  });
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLoadingLogin, setIsLoadingLogin] = useState<boolean>(false);
   return (
     <Formik
       initialValues={{
         email: "",
         password: "",
-        toggle: false,
-        checked: [],
       }}
       validationSchema={loginSchema}
       onSubmit={async (values: ILogin) => {
-        console.log("🚀 ~ onSubmit={ ~ values:", values);
-        setIsLogin(true);
+        setIsLoadingLogin(true);
         if (values.email && values.password) {
           const user = await UserServices.login({
             email: values.email,
             password: values.password,
           });
-          setIsLogin(false);
+
+          setIsLoadingLogin(false);
 
           if (user.status < 500) {
-            values.toggle
-              ? localStorage.setItem("user_cookie", user.data.user_cookie)
-              : localStorage.clear();
+            localStorage.setItem("user_cookie", user.data.user_cookie);
             Swal.fire({
               title: "Great !",
               text: "Login successfully",
@@ -58,10 +47,10 @@ const LoginForm = () => {
             });
           }
         }
-        setIsLogin(false);
+        setIsLoadingLogin(false);
       }}
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, values }) => (
         <Form
           style={{ maxWidth: "560px", width: "100%" }}
           className="row g-3 border rounded p-3"
@@ -152,7 +141,11 @@ const LoginForm = () => {
               <Button
                 variant="primary"
                 type={
-                  isLogin || errors.email || errors.password
+                  isLoadingLogin ||
+                  errors.email ||
+                  errors.password ||
+                  values.email === "" ||
+                  values.password === ""
                     ? "button"
                     : "submit"
                 }
@@ -162,7 +155,11 @@ const LoginForm = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   cursor:
-                    isLogin || errors.email || errors.password
+                    isLoadingLogin ||
+                    errors.email ||
+                    errors.password ||
+                    values.email === "" ||
+                    values.password === ""
                       ? "no-drop"
                       : "pointer",
                 }}

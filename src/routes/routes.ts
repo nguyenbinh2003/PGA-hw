@@ -1,11 +1,12 @@
-import HomePage from "../pages/homePage/HomePage"
-import LoginGage from "../pages/auth/loginPage/LoginPage"
-import ErrorPage from "../pages/errorPage/ErrorPage"
-import RegisterPage from "../pages/auth/registerPage/RegisterPage"
+import HomePage from "../pages/homePage/HomePage";
+import LoginGage from "../pages/auth/loginPage/LoginPage";
+import ErrorPage from "../pages/errorPage/ErrorPage";
+import RegisterPage from "../pages/auth/registerPage/RegisterPage";
 
 export const publicRoutes = [
-    { path: '/', component: HomePage },
-    { path: '/error', component: ErrorPage },
-    { path: '/login', component: LoginGage },
-    { path: '/sign-up', component: RegisterPage },
-]
+  { path: "/login", component: LoginGage },
+  { path: "/error", component: ErrorPage },
+  { path: "/sign-up", component: RegisterPage },
+];
+
+export const privateRoutes = [{ path: "/", component: HomePage }];

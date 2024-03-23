@@ -1,25 +1,17 @@
-import { Formik, Form, Field, useField } from "formik";
-import * as Yub from "yup";
+import { Formik, Form, Field } from "formik";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
-// import { FaStarOfLife } from "react-icons/fa6";
+import { FaStarOfLife } from "react-icons/fa6";
 import { Button } from "react-bootstrap";
-import { IRegister } from "../../../../interfaces/auth-interface";
-import RegisterService from "../../../../services/auth/registerSevices";
+
+import { IRegister } from "@/src/interfaces/auth-interface";
+import RegisterService from "@/src/services/auth/registerSevices";
+import { registerSchema } from "@/src/utils/formSchema";
 
 const UserServices = new RegisterService();
 
 export default function RegisterForm() {
-  const registerSchema = Yub.object().shape({
-    email: Yub.string().email("Invalid email"),
-    fullName: Yub.string().min(2, "Too Short!").max(50, "Too Long!"),
-    password: Yub.string().min(6, "Password must be 6 characters long"),
-    repeatPassword: Yub.string().min(6, "Password must be 6 characters long"),
-    gender: Yub.string(),
-    region: Yub.string(),
-    state: Yub.string(),
-  });
   const [location, setLocation] = useState<any>([]);
   const [state, setState] = useState<any>([]);
   const navigate = useNavigate();
@@ -33,18 +25,18 @@ export default function RegisterForm() {
     }
   };
 
+  async function getLocation() {
+    const getLocation = await UserServices.getLocation();
+    setLocation(getLocation.data.data);
+  }
   useEffect(() => {
-    async function getLocation() {
-      const getLocation = await UserServices.getLocation();
-      setLocation(getLocation.data.data);
-    }
     getLocation();
   }, []);
   return (
     <Formik
       initialValues={{
         email: "",
-        fullName: "",
+        name: "",
         password: "",
         repeatPassword: "",
         gender: "",
@@ -61,6 +53,7 @@ export default function RegisterForm() {
             text: "Login successfully",
             icon: "success",
           });
+          localStorage.setItem("user-token", registerUser.data.data.token);
           navigate("/");
         } else {
           Swal.fire({
@@ -71,7 +64,7 @@ export default function RegisterForm() {
         }
       }}
     >
-      {(errors) => (
+      {({ errors, touched, values }) => (
         <Form
           style={{ maxWidth: "560px", width: "100%" }}
           className="row g-3 border rounded p-3"
@@ -84,77 +77,153 @@ export default function RegisterForm() {
           </div>
           <div>
             <div className="mb-3">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">
+                Email <FaStarOfLife size={7} color="red" />
+              </label>
               <Field
                 name="email"
                 id="email"
-                className={`form-control`}
+                className={`form-control ${
+                  errors.email && touched.email ? "is-invalid" : ""
+                }`}
                 type="text"
                 placeholder="Email@gmail.com"
                 autocomplete="email"
                 validateOnChange={false}
               />
+              {errors.email && errors.email ? (
+                <div
+                  id="validationServerUsernameFeedback"
+                  className="invalid-feedback"
+                >
+                  {errors.email}
+                </div>
+              ) : (
+                ""
+              )}
             </div>
             <div className="mb-3">
-              <label htmlFor="fullname">Full Name</label>
+              <label htmlFor="fullname">
+                Full Name <FaStarOfLife size={7} color="red" />
+              </label>
               <Field
-                name="fullName"
+                name="name"
                 id="fullname"
-                className={`form-control `}
+                className={`form-control ${
+                  errors.name && touched.name ? "is-invalid" : ""
+                }`}
                 type="text"
                 placeholder="Full Name"
                 autocomplete="name"
                 validateOnChange={false}
               />
+              {errors.name && errors.name ? (
+                <div
+                  id="validationServerUsernameFeedback"
+                  className="invalid-feedback"
+                >
+                  {errors.name}
+                </div>
+              ) : (
+                ""
+              )}
             </div>
 
             <div className="mb-3">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">
+                Password <FaStarOfLife size={7} color="red" />
+              </label>
 
               <Field
                 name="password"
                 id="password"
-                className={`form-control `}
+                className={`form-control ${
+                  errors.password && touched.password ? "is-invalid" : ""
+                }`}
                 placeholder="Password"
                 type="password"
                 autocomplete="new-password"
                 validateOnChange={false}
               />
+              {errors.password && errors.password ? (
+                <div
+                  id="validationServerUsernameFeedback"
+                  className="invalid-feedback"
+                >
+                  {errors.password}
+                </div>
+              ) : (
+                ""
+              )}
             </div>
             <div className="mb-3">
-              <label htmlFor="repeatPassword">Config Password</label>
+              <label htmlFor="repeatPassword">
+                Config Password <FaStarOfLife size={7} color="red" />
+              </label>
               <Field
                 name="repeatPassword"
                 id="repeatPassword"
-                className={`form-control `}
+                className={`form-control ${
+                  errors.repeatPassword && touched.repeatPassword
+                    ? "is-invalid"
+                    : ""
+                }`}
                 placeholder="Config Password"
                 type="password"
                 autocomplete="current-password"
                 validateOnChange={false}
               />
+              {errors.repeatPassword && errors.repeatPassword ? (
+                <div
+                  id="validationServerUsernameFeedback"
+                  className="invalid-feedback"
+                >
+                  {errors.repeatPassword}
+                </div>
+              ) : (
+                ""
+              )}
             </div>
 
             <div className="mb-3">
-              <label htmlFor="gender">Gender</label>
+              <label htmlFor="gender">
+                Gender <FaStarOfLife size={7} color="red" />
+              </label>
               <Field
                 name="gender"
                 id="gender"
                 as="select"
-                className="form-select"
+                className={`form-select ${
+                  errors.gender && touched.gender ? "is-invalid" : ""
+                }`}
                 autocomplete="gender-name"
               >
                 <option selected>-- select an option --</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
               </Field>
+              {errors.gender && errors.gender ? (
+                <div
+                  id="validationServerUsernameFeedback"
+                  className="invalid-feedback"
+                >
+                  {errors.gender}
+                </div>
+              ) : (
+                ""
+              )}
             </div>
             <div className="mb-3">
-              <label htmlFor="country">Country</label>
+              <label htmlFor="country">
+                Country <FaStarOfLife size={7} color="red" />
+              </label>
               <Field
                 name="region"
                 id="country"
                 as="select"
-                className="form-select"
+                className={`form-select ${
+                  errors.region && touched.region ? "is-invalid" : ""
+                }`}
                 autocomplete="country-name"
                 onClick={handleChangeValue}
               >
@@ -167,30 +236,50 @@ export default function RegisterForm() {
                     ))
                   : ""}
               </Field>
-            </div>
-            {state.length === 0 ? (
-              ""
-            ) : (
-              <div className="mb-3">
-                <label htmlFor="city">City</label>
-                <Field
-                  name="state"
-                  id="city"
-                  as="select"
-                  className="form-select"
-                  autocomplete="city-name"
+              {errors.region && errors.region ? (
+                <div
+                  id="validationServerUsernameFeedback"
+                  className="invalid-feedback"
                 >
-                  <option selected>-- select an option --</option>
-                  {state
-                    ? state.map((state: any) => (
-                        <option key={state.id} value={state.id}>
-                          {state.name}
-                        </option>
-                      ))
-                    : ""}
-                </Field>
-              </div>
-            )}
+                  {errors.region}
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+            <div className="mb-3">
+              <label htmlFor="city">
+                City <FaStarOfLife size={7} color="red" />
+              </label>
+              <Field
+                name="state"
+                id="city"
+                as="select"
+                className={`form-select ${
+                  errors.state && touched.state ? "is-invalid" : ""
+                }`}
+                autocomplete="city-name"
+              >
+                <option selected>-- select an option --</option>
+                {state
+                  ? state.map((state: any) => (
+                      <option key={state.id} value={state.id}>
+                        {state.name}
+                      </option>
+                    ))
+                  : ""}
+              </Field>
+              {errors.state && errors.state ? (
+                <div
+                  id="validationServerUsernameFeedback"
+                  className="invalid-feedback"
+                >
+                  {errors.state}
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
           </div>
 
           <div
@@ -200,12 +289,46 @@ export default function RegisterForm() {
             <div className="d-flex col-12 justify-content-center pb-3">
               <Button
                 variant="primary"
-                type="submit"
+                type={
+                  errors.name ||
+                  errors.email ||
+                  errors.password ||
+                  errors.gender ||
+                  errors.repeatPassword ||
+                  errors.region ||
+                  errors.state ||
+                  values.email === "" ||
+                  values.name === "" ||
+                  values.password === "" ||
+                  values.repeatPassword === "" ||
+                  values.gender === "" ||
+                  values.region === "" ||
+                  values.state === ""
+                    ? "button"
+                    : "submit"
+                }
                 style={{
                   minWidth: "12rem",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  cursor:
+                    errors.name ||
+                    errors.email ||
+                    errors.password ||
+                    errors.gender ||
+                    errors.repeatPassword ||
+                    errors.region ||
+                    errors.state ||
+                    values.email === "" ||
+                    values.name === "" ||
+                    values.password === "" ||
+                    values.repeatPassword === "" ||
+                    values.gender === "" ||
+                    values.region === "" ||
+                    values.state === ""
+                      ? "no-drop"
+                      : "pointer",
                 }}
               >
                 Sign Up
