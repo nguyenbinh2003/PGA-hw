@@ -24,6 +24,25 @@ export default function RegisterForm() {
       console.log(state);
     }
   };
+  const handleRegister = async (values: IRegister) => {
+    const registerUser = await UserServices.register(values);
+    console.log(registerUser);
+    if (registerUser.status < 400) {
+      Swal.fire({
+        title: "Great !",
+        text: "Login successfully",
+        icon: "success",
+      });
+      localStorage.setItem("user-token", registerUser.data.data.token);
+      navigate("/");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Your email or password is wrong. Try again!",
+      });
+    }
+  };
 
   async function getLocation() {
     const getLocation = await UserServices.getLocation();
@@ -44,25 +63,7 @@ export default function RegisterForm() {
         state: "",
       }}
       validationSchema={registerSchema}
-      onSubmit={async (values: IRegister) => {
-        const registerUser = await UserServices.register(values);
-        console.log(registerUser);
-        if (registerUser.status < 400) {
-          Swal.fire({
-            title: "Great !",
-            text: "Login successfully",
-            icon: "success",
-          });
-          localStorage.setItem("user-token", registerUser.data.data.token);
-          navigate("/");
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Your email or password is wrong. Try again!",
-          });
-        }
-      }}
+      onSubmit={(values) => handleRegister(values)}
     >
       {({ errors, touched, values }) => (
         <Form

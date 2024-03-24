@@ -14,6 +14,34 @@ const UserServices = new LoginService();
 const LoginForm = () => {
   const navigate = useNavigate();
   const [isLoadingLogin, setIsLoadingLogin] = useState<boolean>(false);
+  const handleLogin = async (values: ILogin) => {
+    setIsLoadingLogin(true);
+    if (values.email && values.password) {
+      const user = await UserServices.login({
+        email: values.email,
+        password: values.password,
+      });
+
+      setIsLoadingLogin(false);
+
+      if (user.status < 400) {
+        localStorage.setItem("user_cookie", user.data.user_cookie);
+        Swal.fire({
+          title: "Great !",
+          text: "Login successfully",
+          icon: "success",
+        });
+        navigate("/");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Your email or password is wrong. Try again!",
+        });
+      }
+    }
+    setIsLoadingLogin(false);
+  };
   return (
     <Formik
       initialValues={{
@@ -21,34 +49,7 @@ const LoginForm = () => {
         password: "",
       }}
       validationSchema={loginSchema}
-      onSubmit={async (values: ILogin) => {
-        setIsLoadingLogin(true);
-        if (values.email && values.password) {
-          const user = await UserServices.login({
-            email: values.email,
-            password: values.password,
-          });
-
-          setIsLoadingLogin(false);
-
-          if (user.status < 500) {
-            localStorage.setItem("user_cookie", user.data.user_cookie);
-            Swal.fire({
-              title: "Great !",
-              text: "Login successfully",
-              icon: "success",
-            });
-            navigate("/");
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: "Your email or password is wrong. Try again!",
-            });
-          }
-        }
-        setIsLoadingLogin(false);
-      }}
+      onSubmit={(values) => handleLogin(values)}
     >
       {({ errors, touched, values }) => (
         <Form

@@ -1,7 +1,8 @@
-import HomePage from "../pages/homePage/HomePage";
-import LoginGage from "../pages/auth/loginPage/LoginPage";
-import ErrorPage from "../pages/errorPage/ErrorPage";
-import RegisterPage from "../pages/auth/registerPage/RegisterPage";
+import HomePage from "@/src/pages/homePage/HomePage";
+import LoginGage from "@/src/pages/auth/loginPage/LoginPage";
+import ErrorPage from "@/src/pages/errorPage/ErrorPage";
+import RegisterPage from "@/src/pages/auth/registerPage/RegisterPage";
+import TodoPage from "@/src/pages/todoPage/TodoPage";
 
 export const publicRoutes = [
   { path: "/login", component: LoginGage },
@@ -9,4 +10,7 @@ export const publicRoutes = [
   { path: "/sign-up", component: RegisterPage },
 ];
 
-export const privateRoutes = [{ path: "/", component: HomePage }];
+export const privateRoutes = [
+  { path: "/", component: HomePage },
+  { path: "/todo", component: TodoPage },
+];

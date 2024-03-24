@@ -9,7 +9,7 @@ import PublicRouter from "./routes/publicRouter/publicRouter";
 function App() {
   return (
     <BrowserRouter>
-      <Container style={{ width: "100vw" }}>
+      <Container style={{ width: "100vw" }} className="d-flex justify-content-center">
         <Routes>
           <Route element={<PublicRouter />}>
             {publicRoutes.map((route, index) => {
