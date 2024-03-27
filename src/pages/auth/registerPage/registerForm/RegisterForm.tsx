@@ -20,11 +20,13 @@ export default function RegisterForm() {
     const region: number = parseInt(e.target.value);
     if (region) {
       const getState = await UserServices.getState(String(region));
-      setState(getState.data.data);
+      setState(getState.data);
       console.log(state);
     }
   };
   const handleRegister = async (values: IRegister) => {
+    console.log(values);
+    
     const registerUser = await UserServices.register(values);
     console.log(registerUser);
     if (registerUser.status < 400) {
@@ -33,7 +35,7 @@ export default function RegisterForm() {
         text: "Login successfully",
         icon: "success",
       });
-      localStorage.setItem("user-token", registerUser.data.data.token);
+      localStorage.setItem("user-token", registerUser.data.token);
       navigate("/");
     } else {
       Swal.fire({
@@ -46,7 +48,7 @@ export default function RegisterForm() {
 
   async function getLocation() {
     const getLocation = await UserServices.getLocation();
-    setLocation(getLocation.data.data);
+    setLocation(getLocation.data);
   }
   useEffect(() => {
     getLocation();

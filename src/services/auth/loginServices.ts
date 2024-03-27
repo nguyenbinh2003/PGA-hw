@@ -1,12 +1,12 @@
 import BaseServices from "../baseServices";
 
-const URL = "https://api.gearfocus.div4.pgtest.co/api/authentication";
+const URL = "http://api.training.div3.pgtest.co/api/v1";
 class LoginService extends BaseServices {
   constructor() {
     super(URL, {});
   }
   login(data: object = {}) {
-    return this.post("/login", data, {});
+    return this.post("/auth/login", data, {});
   }
 }
 

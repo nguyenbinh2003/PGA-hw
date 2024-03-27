@@ -17,20 +17,23 @@ const LoginForm = () => {
   const handleLogin = async (values: ILogin) => {
     setIsLoadingLogin(true);
     if (values.email && values.password) {
-      const user = await UserServices.login({
+      const user: any = await UserServices.login({
         email: values.email,
         password: values.password,
       });
 
       setIsLoadingLogin(false);
 
-      if (user.status < 400) {
-        localStorage.setItem("user_cookie", user.data.user_cookie);
+      if (user.code < 400) {
+        const { token, ...dataUser } = user.data;
+        localStorage.setItem("user-token", token);
+        localStorage.setItem("user", JSON.stringify(dataUser));
         Swal.fire({
           title: "Great !",
           text: "Login successfully",
           icon: "success",
         });
+
         navigate("/");
       } else {
         Swal.fire({

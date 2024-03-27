@@ -1,7 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 const PrivateRouter = () => {
-  const userToken = localStorage.getItem("user_cookie");
+  const userToken = localStorage.getItem("user-token");
+  
   const location = useLocation();
   if (userToken) {
     if (location.pathname === "/login") {

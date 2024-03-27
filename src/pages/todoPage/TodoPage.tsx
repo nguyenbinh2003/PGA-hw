@@ -30,7 +30,7 @@ const TodoPage = () => {
           Add
         </Button>
       </Stack>
-      <div>
+      <div style={{ position: "absolute", top: "18rem" }}>
         {todos?.map((item) => (
           <TodoItem id={item.id} title={item.title} />
         ))}
