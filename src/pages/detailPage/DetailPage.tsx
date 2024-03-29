@@ -42,9 +42,10 @@ export default function DetailPage() {
       </div>
       <div style={{ padding: "2rem" }} className="col-4">
         <img
+          className="rounded-circle"
           src={
             avatar
-              ? avatar
+              ? `http://api.training.div3.pgtest.co/${avatar}`
               : "https://cdn-icons-png.flaticon.com/512/6596/6596121.png"
           }
           alt=""

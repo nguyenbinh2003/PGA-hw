@@ -10,12 +10,8 @@ class UserService extends BaseServices {
     return this.get("/user", {});
   }
 
-  getProduct() {
-    return this.get("/product", {});
-  }
-
-  uploadAvatar(dataForm: object) {
-    return this.put("/user", dataForm);
+  uploadAvatar(data: any) {
+    return this.putAvatar("/user", data);
   }
 }
 

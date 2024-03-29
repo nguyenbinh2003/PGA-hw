@@ -26,7 +26,9 @@ class BaseServices {
               window.location.reload();
               return;
             case 403:
-              window.location.href = "/error";
+              console.error(error);
+
+              // window.location.href = "/error";
               return;
             case 404:
               return response;
@@ -55,7 +57,7 @@ class BaseServices {
     const config = {
       headers: {
         Authorization: userToken,
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "multipart/form-data;",
       },
       ...this.configHeaders,
     };
@@ -79,14 +81,21 @@ class BaseServices {
    * @param {object} configHeaders - Additional headers to include in the request (default: undefined).
    * @return {Promise} A Promise that resolves with the response from the server.
    */
-  put(url: string, data: object = {}, configHeaders?: object): Promise<any> {
+  put(url: string, data: object, configHeaders?: object): Promise<any> {
+    return this.http.put(url, data, {
+      ...this.setConfigHeaders(),
+      ...configHeaders,
+    });
+  }
+
+  putAvatar(url: string, data: object, configHeaders?: object) {
     return this.http.put(url, data, {
       ...this.setConfigHeadersUploadImg(),
       ...configHeaders,
     });
   }
 
-  patch(url: string, data: object = {}, configHeaders?: object): Promise<any> {
+  patch(url: string, data: object, configHeaders?: object): Promise<any> {
     return this.http.patch(url, data, {
       ...this.setConfigHeaders(),
       ...configHeaders,

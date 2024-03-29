@@ -13,6 +13,7 @@ import { imgPreview } from "@/src/utils/preview/imgPreview";
 import { useDebounceEffect } from "@/src/hooks/hooks";
 import UserService from "@/src/services/user/userSevices";
 import Swal from "sweetalert2";
+import { dataURLtoBlob } from "@/src/utils/dataURLtoBlob";
 
 function centerAspectCrop(
   mediaWidth: number,
@@ -44,9 +45,7 @@ export default function ModalUpdateImg(props: any) {
   const imgRef = useRef<HTMLImageElement>(null);
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [scale, setScale] = useState(1);
-  const [rotate, setRotate] = useState(0);
-  const [aspect, setAspect] = useState<number | undefined>(16 / 9);
+  const [aspect, setAspect] = useState<number | undefined>(9 / 9);
   const [isUpload, setIsUpload] = useState<boolean>(false);
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -76,28 +75,22 @@ export default function ModalUpdateImg(props: any) {
         previewCanvasRef.current
       ) {
         // We use canvasPreview as it's much faster than imgPreview.
-        canvasPreview(
-          imgRef.current,
-          previewCanvasRef.current,
-          completedCrop,
-          scale,
-          rotate
-        );
+        canvasPreview(imgRef.current, previewCanvasRef.current, completedCrop);
       }
     },
     100,
-    [completedCrop, scale, rotate]
+    [completedCrop]
   );
 
   function handleToggleAspectClick() {
     if (aspect) {
       setAspect(undefined);
     } else {
-      setAspect(16 / 9);
+      setAspect(9 / 9);
 
       if (imgRef.current) {
         const { width, height } = imgRef.current;
-        const newCrop = centerAspectCrop(width, height, 16 / 9);
+        const newCrop = centerAspectCrop(width, height, 9 / 9);
         setCrop(newCrop);
         // Updates the preview
         setCompletedCrop(convertToPixelCrop(newCrop, width, height));
@@ -139,28 +132,16 @@ export default function ModalUpdateImg(props: any) {
       offscreen.height
     );
 
-    const blob = await offscreen.convertToBlob({
-      type: "image/jpg",
-    });
+    const dataUrl = previewCanvasRef.current.toDataURL();
+    const blob: Blob = dataURLtoBlob(dataUrl);
     const formData = new FormData();
-    const fileOfBlob = new File([blob], "new-avatar-img.jpg", {
-      type: blob.type,
-    });
-    formData.append("upload", fileOfBlob, "image.png");
-    console.log("🚀 ~ handleSubmit ~ fileOfBlob:", fileOfBlob);
+    formData.append("file", blob, "avatar.png");
 
     setIsUpload(true);
-    const upload = await UserSevices.uploadAvatar(fileOfBlob);
-    console.log("🚀 ~ handleSubmit ~ upload:", upload);
-    if (upload.status < 400) {
+    const upload: any = await UserSevices.uploadAvatar(formData);
+    if (upload.code < 400) {
       getUser();
       handleClose();
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Something wrong",
-      });
     }
     setIsUpload(false);
   }
@@ -191,6 +172,8 @@ export default function ModalUpdateImg(props: any) {
             crop={crop}
             onChange={(_, percentCrop) => setCrop(percentCrop)}
             onComplete={(c) => setCompletedCrop(c)}
+            circularCrop
+            keepSelection
             aspect={aspect}
             minHeight={100}
             className="mt-2"
@@ -202,6 +185,7 @@ export default function ModalUpdateImg(props: any) {
           <>
             <div>
               <canvas
+                className="rounded-circle"
                 ref={previewCanvasRef}
                 style={{
                   border: "1px solid black",
